@@ -14,6 +14,9 @@ venv/
 # YOLO model weights (large binary files)
 *.pt
 
+# Datasets
+datasets/
+
 # Training runs
 runs/
 
@@ -39,3 +42,4 @@ text/images/
 
 # Dev notes
 开发文档.txt
+CLAUDE.md

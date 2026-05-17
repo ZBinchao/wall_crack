@@ -5,7 +5,9 @@
     <h5 class="mb-0">实时检测 - {{ order.title }}</h5>
     <div>
         <button id="btnCapture" class="btn btn-danger btn-sm">📸 截图保存</button>
+        <button id="btnMonitor" class="btn btn-warning btn-sm ms-1">🔍 裂缝监测</button>
         <span id="captureStatus" class="ms-2 small text-muted"></span>
+        <span id="monitorStatus" class="ms-2 small"></span>
     </div>
 </div>
 
@@ -69,5 +71,49 @@ document.getElementById('btnCapture').addEventListener('click', async function()
     }
     btn.disabled = false;
 });
+
+// 裂缝监测按钮和状态轮询
+(function() {
+    const btn = document.getElementById('btnMonitor');
+    const status = document.getElementById('monitorStatus');
+    let pollTimer = null;
+
+    fetch('/monitor/status')
+        .then(r => r.json())
+        .then(d => {
+            if (d.pending_images > 0) {
+                status.textContent = `(${d.pending_images} 张待处理)`;
+            }
+        });
+
+    btn.addEventListener('click', async function() {
+        btn.disabled = true;
+        status.textContent = '正在处理...';
+
+        try {
+            const res = await fetch('/monitor/run', { method: 'POST' });
+            const data = await res.json();
+            if (data.success) {
+                const r = data.report;
+                const newCount = r.images_with_new_cracks || 0;
+                status.textContent = `✅ 完成 (${r.total_images_processed}张, ${newCount}张新增)`;
+            } else {
+                status.textContent = '❌ ' + (data.error || '处理失败');
+            }
+        } catch (e) {
+            status.textContent = '❌ 请求失败';
+        }
+        btn.disabled = false;
+        refreshPending();
+    });
+
+    function refreshPending() {
+        fetch('/monitor/status')
+            .then(r => r.json())
+            .then(d => {
+                status.textContent = d.pending_images > 0 ? `(${d.pending_images} 张待处理)` : '';
+            });
+    }
+})();
 </script>
 {% endblock %}

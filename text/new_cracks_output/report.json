@@ -1,0 +1,106 @@
+{
+  "run_timestamp": "2026-05-24T00:19:25.817455",
+  "total_images_processed": 4,
+  "images_with_new_cracks": 3,
+  "results": [
+    {
+      "filename": "1686.rf.809fb1b51c607e5cf787e44ef4ddd7b8.jpg",
+      "is_baseline": true,
+      "total_cracks": 2,
+      "new_cracks_count": 0,
+      "new_cracks_details": []
+    },
+    {
+      "filename": "1706.rf.011d213c21ec78896c36728dcbc156f5.jpg",
+      "is_baseline": false,
+      "total_cracks": 1,
+      "new_cracks_count": 1,
+      "new_cracks_details": [
+        {
+          "crack_index": 0,
+          "confidence": 0.5606,
+          "severity": "medium",
+          "mask_pixel_count": 5172,
+          "mask_ratio_percent": 2.989,
+          "bbox": [
+            216,
+            175,
+            290,
+            414
+          ]
+        }
+      ],
+      "annotated_path": "D:\\wall_crack_m\\text\\new_cracks_output\\annotated\\new_1706.rf.011d213c21ec78896c36728dcbc156f5.jpg"
+    },
+    {
+      "filename": "1716.rf.85ea38b36008beaa72c5d8541f734eb0.jpg",
+      "is_baseline": false,
+      "total_cracks": 2,
+      "new_cracks_count": 2,
+      "new_cracks_details": [
+        {
+          "crack_index": 0,
+          "confidence": 0.7958,
+          "severity": "medium",
+          "mask_pixel_count": 8602,
+          "mask_ratio_percent": 4.971,
+          "bbox": [
+            0,
+            140,
+            272,
+            240
+          ]
+        },
+        {
+          "crack_index": 1,
+          "confidence": 0.7192,
+          "severity": "medium",
+          "mask_pixel_count": 4072,
+          "mask_ratio_percent": 2.353,
+          "bbox": [
+            279,
+            148,
+            415,
+            194
+          ]
+        }
+      ],
+      "annotated_path": "D:\\wall_crack_m\\text\\new_cracks_output\\annotated\\new_1716.rf.85ea38b36008beaa72c5d8541f734eb0.jpg"
+    },
+    {
+      "filename": "1722.rf.38b38f2e833309a4f35bfbf0432dffff.jpg",
+      "is_baseline": false,
+      "total_cracks": 2,
+      "new_cracks_count": 2,
+      "new_cracks_details": [
+        {
+          "crack_index": 0,
+          "confidence": 0.7364,
+          "severity": "high",
+          "mask_pixel_count": 16093,
+          "mask_ratio_percent": 9.299,
+          "bbox": [
+            0,
+            22,
+            412,
+            373
+          ]
+        },
+        {
+          "crack_index": 1,
+          "confidence": 0.6253,
+          "severity": "high",
+          "mask_pixel_count": 13420,
+          "mask_ratio_percent": 7.755,
+          "bbox": [
+            0,
+            17,
+            294,
+            396
+          ]
+        }
+      ],
+      "annotated_path": "D:\\wall_crack_m\\text\\new_cracks_output\\annotated\\new_1722.rf.38b38f2e833309a4f35bfbf0432dffff.jpg"
+    }
+  ]
+}

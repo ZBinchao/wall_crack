@@ -1,4 +1,5 @@
 import os
+import json
 import time
 import threading
 import queue
@@ -29,6 +30,7 @@ from auth import login_user, logout_user, get_current_user, require_login, init_
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key="wall-crack-secret-key-2024")
 app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/new_cracks_output", StaticFiles(directory="new_cracks_output"), name="new_cracks_output")
 templates = Jinja2Templates(directory="templates")
 templates.env.globals["now"] = datetime.now
 
@@ -624,3 +626,44 @@ def report_page(request: Request, order_id: int, db: Session = Depends(get_db)):
             "user": user,
         },
     )
+
+# ============================================================
+# 15. 裂缝监测
+# ============================================================
+from crack_monitor import process_uploads, load_previous_state, UPLOAD_DIR, OUTPUT_DIR
+
+
+@app.post("/monitor/run")
+def run_monitoring():
+    try:
+        report = process_uploads()
+        return JSONResponse({
+            "success": True,
+            "report": report,
+            "message": f"已处理 {report.get('total_images_processed', 0)} 张图片",
+        })
+    except Exception as e:
+        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
+
+
+@app.get("/monitor/report")
+def get_monitor_report():
+    report_path = OUTPUT_DIR / "report.json"
+    if not report_path.exists():
+        return JSONResponse({"success": False, "error": "暂无监测报告"}, status_code=404)
+    with open(report_path, "r", encoding="utf-8") as f:
+        report = json.load(f)
+    return JSONResponse({"success": True, "report": report})
+
+
+@app.get("/monitor/status")
+def monitor_status():
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    pending = [f for f in UPLOAD_DIR.iterdir()
+               if f.suffix.lower() == ".jpg" and f.is_file()]
+    masks, meta = load_previous_state()
+    return JSONResponse({
+        "pending_images": len(pending),
+        "has_baseline": masks is not None,
+        "last_baseline_file": meta["filename"] if meta else None,
+    })
