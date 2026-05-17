@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}工单详情{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">工单详情 #{{ order.id }}</h4>
+    <div>
+        <a href="/work-orders/{{ order.id }}/detect" class="btn btn-success btn-sm">开始检测</a>
+        <a href="/work-orders/{{ order.id }}/edit" class="btn btn-outline-primary btn-sm">编辑</a>
+        <a href="/report/{{ order.id }}" class="btn btn-outline-info btn-sm">查看报告</a>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>标题：</strong>{{ order.title }}</p>
+                <p><strong>地点：</strong>{{ order.location or '-' }}</p>
+                <p><strong>负责人：</strong>{{ inspector.real_name or inspector.username if inspector else '-' }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>状态：</strong>
+                    <span class="badge bg-{{ 'success' if order.status == 'completed' else 'warning' if order.status == 'in_progress' else 'secondary' }}">
+                        {{ {'pending':'待处理','in_progress':'进行中','completed':'已完成'}.get(order.status, order.status) }}
+                    </span>
+                </p>
+                <p><strong>描述：</strong>{{ order.description or '-' }}</p>
+                <p><strong>创建时间：</strong>{{ order.created_at.strftime('%Y-%m-%d %H:%M') if order.created_at else '-' }}</p>
+            </div>
+        </div>
+        {% if order.status != 'completed' %}
+        <form method="post" action="/work-orders/{{ order.id }}/status" class="mt-2">
+            {% if order.status == 'pending' %}
+            <button name="status" value="in_progress" class="btn btn-warning btn-sm">开始处理</button>
+            {% elif order.status == 'in_progress' %}
+            <button name="status" value="completed" class="btn btn-success btn-sm">标记完成</button>
+            {% endif %}
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<h5 class="mb-2">检测记录（{{ anomalies|length }}）</h5>
+{% if anomalies %}
+<div class="row">
+    {% for a in anomalies %}
+    <div class="col-md-4 col-sm-6 mb-3">
+        <div class="card h-100">
+            <img src="/{{ a.annotated_path }}" class="card-img-top" alt="检测图片" style="height:180px;object-fit:cover">
+            <div class="card-body p-2 small">
+                <span class="badge bg-{{ 'danger' if a.severity=='high' else 'warning' if a.severity=='medium' else 'info' }}">
+                    {{ {'low':'轻微','medium':'中等','high':'严重'}.get(a.severity, a.severity) }}
+                </span>
+                置信度: {{ "%.2f"|format(a.confidence) }}
+                <span class="text-muted ms-2">{{ a.created_at.strftime('%m-%d %H:%M') if a.created_at else '' }}</span>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">暂无检测记录，请进入检测页面开始巡检。</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Virtual Environment
+yolo-crack/
+venv/
+.venv/
+
+# YOLO model weights (large binary files)
+*.pt
+
+# Training runs
+runs/
+
+# SQLite database
+*.db
+
+# IDE
+.idea/
+.vscode/
+.aionrs/
+
+# OS
+Thumbs.db
+.DS_Store
+Desktop.ini
+
+# Environment
+.env
+*.env.local
+
+# Uploaded images (generated at runtime)
+text/images/
+
+# Dev notes
+开发文档.txt

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>检测报告 - {{ order.title }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; font-size: 14px; }
+        .header { text-align: center; border-bottom: 3px double #333; padding-bottom: 15px; margin-bottom: 20px; }
+        .header h2 { margin: 0; }
+        .header small { color: #666; }
+        .info-table td { padding: 4px 10px; }
+        .info-table td:first-child { font-weight: bold; width: 100px; }
+        .img-item { border: 1px solid #ddd; border-radius: 4px; padding: 8px; margin-bottom: 10px; break-inside: avoid; }
+        .img-item img { width: 100%; max-height: 200px; object-fit: cover; border-radius: 4px; }
+        .stat-card { text-align: center; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .stat-card h3 { margin: 0; color: #0d6efd; }
+        .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; text-align: center; color: #999; font-size: 12px; }
+        @media print { .no-print { display: none !important; } }
+    </style>
+</head>
+<body>
+    <div class="no-print mb-3">
+        <button onclick="window.print()" class="btn btn-primary">打印 / 导出 PDF</button>
+        <a href="/work-orders/{{ order.id }}" class="btn btn-outline-secondary">返回工单</a>
+    </div>
+
+    <div class="header">
+        <h2>墙体裂缝检测报告</h2>
+        <small>报告编号: RPT-{{ order.id }}-{{ order.created_at.strftime('%Y%m%d') if order.created_at else '' }}</small>
+    </div>
+
+    <h5>一、工单信息</h5>
+    <table class="info-table">
+        <tr><td>工单标题</td><td>{{ order.title }}</td></tr>
+        <tr><td>巡检地点</td><td>{{ order.location or '-' }}</td></tr>
+        <tr><td>负责人</td><td>{{ inspector.real_name or inspector.username if inspector else '-' }}</td></tr>
+        <tr><td>状态</td><td>{{ {'pending':'待处理','in_progress':'进行中','completed':'已完成'}.get(order.status, order.status) }}</td></tr>
+        <tr><td>创建时间</td><td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') if order.created_at else '-' }}</td></tr>
+        <tr><td>任务描述</td><td>{{ order.description or '-' }}</td></tr>
+    </table>
+
+    <h5 class="mt-4">二、检测统计</h5>
+    <div class="row g-2 mb-3">
+        <div class="col-3"><div class="stat-card"><h3>{{ total_cracks }}</h3><small>检测图片</small></div></div>
+        <div class="col-3"><div class="stat-card"><h3>{{ severity_count.low }}</h3><small>轻微</small></div></div>
+        <div class="col-3"><div class="stat-card"><h3>{{ severity_count.medium }}</h3><small>中等</small></div></div>
+        <div class="col-3"><div class="stat-card"><h3>{{ severity_count.high }}</h3><small>严重</small></div></div>
+    </div>
+    <p>平均置信度: <strong>{{ avg_confidence }}</strong></p>
+
+    <h5>三、检测图片</h5>
+    <div class="row">
+        {% for a in anomalies %}
+        <div class="col-4">
+            <div class="img-item">
+                <img src="/{{ a.annotated_path }}" alt="裂缝图片">
+                <div class="mt-1 small">
+                    <span class="badge bg-{{ 'danger' if a.severity=='high' else 'warning' if a.severity=='medium' else 'info' }}">
+                        {{ {'low':'轻微','medium':'中等','high':'严重'}.get(a.severity, a.severity) }}
+                    </span>
+                    置信度: {{ "%.2f"|format(a.confidence) }} |
+                    面积: {{ a.area_pixels }}px²
+                    <div class="text-muted" style="font-size:.75rem">{{ a.created_at.strftime('%Y-%m-%d %H:%M') if a.created_at else '' }}</div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <p class="text-muted">暂无检测数据</p>
+        {% endfor %}
+    </div>
+
+    <div class="footer">
+        <p>报告生成时间: {{ now().strftime('%Y-%m-%d %H:%M') if now else '' }} | 墙体裂缝实时检测系统</p>
+    </div>
+</body>
+</html>

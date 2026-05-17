@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}仪表盘{% endblock %}
+{% block content %}
+<h4 class="mb-3">仪表盘</h4>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card text-bg-primary">
+            <div class="card-body">
+                <h6>总工单数</h6>
+                <h3 id="statOrders">-</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-success">
+            <div class="card-body">
+                <h6>已完成</h6>
+                <h3 id="statCompleted">-</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-warning">
+            <div class="card-body">
+                <h6>检测图片</h6>
+                <h3 id="statImages">-</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-danger">
+            <div class="card-body">
+                <h6>裂缝总数</h6>
+                <h3 id="statAnomalies">-</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">严重程度分布</div>
+            <div class="card-body"><canvas id="severityChart" height="200"></canvas></div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">每日检测趋势</div>
+            <div class="card-body"><canvas id="trendChart" height="200"></canvas></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script>
+fetch('/dashboard-data')
+    .then(r => r.json())
+    .then(d => {
+        document.getElementById('statOrders').textContent = d.total_orders;
+        document.getElementById('statCompleted').textContent = d.completed_orders;
+        document.getElementById('statImages').textContent = d.total_images;
+        document.getElementById('statAnomalies').textContent = d.total_anomalies;
+
+        new Chart(document.getElementById('severityChart'), {
+            type: 'pie',
+            data: {
+                labels: ['轻微', '中等', '严重'],
+                datasets: [{
+                    data: [d.severity_stats.low, d.severity_stats.medium, d.severity_stats.high],
+                    backgroundColor: ['#0d6efd', '#ffc107', '#dc3545']
+                }]
+            }
+        });
+
+        new Chart(document.getElementById('trendChart'), {
+            type: 'line',
+            data: {
+                labels: Object.keys(d.daily_trend),
+                datasets: [{
+                    label: '检测数量',
+                    data: Object.values(d.daily_trend),
+                    borderColor: '#0d6efd',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: { plugins: { legend: { display: false } } }
+        });
+    });
+</script>
+{% endblock %}

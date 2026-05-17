@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}检测图片 - {{ order.title }}{% endblock %}
+{% block content %}
+<h5 class="mb-3">检测图片 - {{ order.title }}</h5>
+<div class="row g-2">
+    {% for a in anomalies %}
+    <div class="col-md-3 col-sm-4 col-6">
+        <div class="card">
+            <img src="/{{ a.annotated_path }}" class="card-img-top" style="height:150px;object-fit:cover">
+            <div class="card-body p-1 small text-center">
+                <span class="badge bg-{{ 'danger' if a.severity=='high' else 'warning' if a.severity=='medium' else 'info' }}">
+                    {{ {'low':'轻微','medium':'中等','high':'严重'}.get(a.severity, a.severity) }}
+                </span>
+                {{ "%.2f"|format(a.confidence) }}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-muted">暂无检测图片</p>
+    {% endfor %}
+</div>
+{% endblock %}

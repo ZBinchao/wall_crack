@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}实时画面{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="mb-0">摄像头实时画面</h5>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <div class="video-box">
+            <h6 class="text-center text-light py-1 m-0 small">原始画面</h6>
+            <img src="/video/original" alt="原始画面" style="width:100%;max-width:800px">
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="video-box">
+            <h6 class="text-center text-light py-1 m-0 small">模型识别画面</h6>
+            <img src="/video/yolo" alt="识别画面" style="width:100%;max-width:800px">
+        </div>
+    </div>
+</div>
+{% endblock %}

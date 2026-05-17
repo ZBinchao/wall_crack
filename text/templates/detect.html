@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}实时检测{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="mb-0">实时检测 - {{ order.title }}</h5>
+    <div>
+        <button id="btnCapture" class="btn btn-danger btn-sm">📸 截图保存</button>
+        <span id="captureStatus" class="ms-2 small text-muted"></span>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <div class="video-box">
+            <h6 class="text-center text-light py-1 m-0 small">原始画面</h6>
+            <img src="/video/original" alt="Original">
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="video-box">
+            <h6 class="text-center text-light py-1 m-0 small">YOLO 识别</h6>
+            <img src="/video/yolo" alt="YOLO">
+        </div>
+    </div>
+</div>
+
+<!-- 最近截图 -->
+<h6>最近截图</h6>
+<div id="captureList" class="capture-list row row-cols-4 g-2">
+    {% for a in order.anomalies[:12] %}
+    <div class="col">
+        <img src="/{{ a.annotated_path }}" class="img-fluid rounded" style="height:80px;width:100%;object-fit:cover">
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('btnCapture').addEventListener('click', async function() {
+    const btn = this;
+    const status = document.getElementById('captureStatus');
+    btn.disabled = true;
+    status.textContent = '正在保存...';
+
+    try {
+        const res = await fetch('/capture/{{ order.id }}', { method: 'POST' });
+        const data = await res.json();
+
+        if (data.success) {
+            const msg = data.has_crack
+                ? `✅ 已保存 (${data.count}处裂缝, ${data.severity})`
+                : `⚠️ 已保存 (未检测到裂缝)`;
+            status.textContent = msg;
+
+            if (data.has_crack) {
+                const list = document.getElementById('captureList');
+                const col = document.createElement('div');
+                col.className = 'col';
+                col.innerHTML = `<img src="${data.image_url}" class="img-fluid rounded" style="height:80px;width:100%;object-fit:cover">`;
+                list.prepend(col);
+                if (list.children.length > 12) list.lastElementChild.remove();
+            }
+        } else {
+            status.textContent = '❌ ' + (data.error || '保存失败');
+        }
+    } catch (e) {
+        status.textContent = '❌ 请求失败';
+    }
+    btn.disabled = false;
+});
+</script>
+{% endblock %}

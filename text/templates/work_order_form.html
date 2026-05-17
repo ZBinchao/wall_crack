@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ '编辑工单' if order else '新建工单' }}{% endblock %}
+{% block content %}
+<h4 class="mb-3">{{ '编辑工单' if order else '新建工单' }}</h4>
+<form method="post">
+    <div class="mb-3">
+        <label class="form-label">标题 <span class="text-danger">*</span></label>
+        <input name="title" class="form-control" required value="{{ order.title if order else '' }}">
+    </div>
+    <div class="mb-3">
+        <label class="form-label">巡检地点</label>
+        <input name="location" class="form-control" placeholder="如：3号楼5层东侧墙体" value="{{ order.location if order else '' }}">
+    </div>
+    <div class="mb-3">
+        <label class="form-label">负责人</label>
+        <select name="inspector_id" class="form-select">
+            <option value="0">-- 请选择 --</option>
+            {% for u in users %}
+            <option value="{{ u.id }}" {{ 'selected' if order and order.inspector_id == u.id }}>{{ u.real_name or u.username }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">任务描述</label>
+        <textarea name="description" class="form-control" rows="3">{{ order.description if order else '' }}</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">保存</button>
+    <a href="/work-orders" class="btn btn-outline-secondary">取消</a>
+</form>
+{% endblock %}
