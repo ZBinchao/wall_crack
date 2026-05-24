@@ -17,8 +17,6 @@ venv/
 # Datasets
 datasets/
 
-# Training runs
-runs/
 
 # SQLite database
 *.db
